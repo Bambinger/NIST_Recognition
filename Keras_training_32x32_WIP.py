@@ -93,17 +93,18 @@ def main():
     convo_3_flat = Flatten()(convo_3_pooling)  # Flatten convolutional layer
 
     full_layer_one = Dense(units = 512, activation= tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Normal_Layer_1")(convo_3_flat)
-    full_one_dropout = Dropout(rate = 0.5, name = "dropout")(full_layer_one)
-    y_pred = Dense(47, activation = 'softmax', kernel_initializer='random_normal', bias_initializer='zeros', name="Output_Layer")(full_one_dropout)  # Layer with 47 neurons for one-hot encoding
+    full_one_dropout = Dropout(rate = 0.3, name = "dropout1")(full_layer_one)
+    full_layer_two = Dense(units = 256, activation= tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Normal_Layer_2")(full_one_dropout)
+    full_two_dropout = Dropout(rate = 0.2, name = "dropout2")(full_layer_two)
+    y_pred = Dense(47, activation = 'softmax', kernel_initializer='random_normal', bias_initializer='zeros', name="Output_Layer")(full_two_dropout)  # Layer with 47 neurons for one-hot encoding
 
     model = Model(inputs = x, outputs = y_pred)
 
     model.summary()
-    loss = sparse_categorical_crossentropy
-    optimizer = Adam(learning_rate=0.001)
-    epoch_count = 10
-    batch_size = 128
-    model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
+    optimizer = Adam(learning_rate=0.005)
+    epoch_count = 15
+    batch_size = 256
+    model.compile(optimizer=optimizer, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=['accuracy'])
 
     log("Model created!")
 
@@ -114,12 +115,10 @@ def main():
                         epochs=epoch_count,
                         batch_size=batch_size)
 
-    saver = tf.train.Saver()
-
 
     log("Finished training.")
-    model_path = "models/32x32_2conv_32_64_1norm_1024.ckpt"
-    saver.save(model, model_path)  # Save final model
+    model_path = "models/first_try2.h5"
+    model.save("models/first_try2.h5")
     log("Model saved in " + model_path)
 
     def display_history(history):

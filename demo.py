@@ -41,6 +41,7 @@ def main():
             pred = p.predict(final)
             print("Predicted " , pred)
             output = np.ones((512, 512, 1))
+            print(pred)
             cv2.putText(output, pred, (10, 500), font, fontScale, fontColor, 10,  2)
 
 

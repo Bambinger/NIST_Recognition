@@ -5,7 +5,8 @@ import numpy as np
 import data_handler as dh
 import sys
 import matplotlib.pyplot as plt
-
+import keras
+from decimal import *
 
 # HELPER FUNCTIONS
 def variable_summaries(var):
@@ -79,9 +80,8 @@ def normal_full_layer(input_layer, size, act=tf.nn.relu, name="unspecified"):
 
 
 def predict(single_image):
-    tf.reset_default_graph()
     X = np.array([single_image])  # Create array from image to fit shape of x (?,32,32,1)
-    checkpoint = "models/32x32_2conv_32_64_1norm_1024.ckpt"  # Model used for prediction, must have the same graph structure!
+    checkpoint = "models/first_try.h5"  # Model used for prediction, must have the same graph structure!
 
     # DICT
     classes = {
@@ -134,55 +134,28 @@ def predict(single_image):
         46: "t"
     }
 
-    # VARIABLES
-    x = tf.placeholder(tf.float32, shape=[None, 32, 32, 1], name="x")  # Input, shape = ?x32x32x1
-    y_true = tf.placeholder(tf.float32, shape=[None, 47], name="y_true")  # Labels, shape = ?x47
 
-    # MODEL
-    # filter size=(4,4); channels=1; filters=16; shape=?x32x32x32
-    convo_1 = convolutional_layer(x, shape=[4, 4, 1, 32], name="Convolutional_1")
-    convo_1_pooling = max_pool_2by2(convo_1)  # shape=?x16x16x32
+    model = keras.models.load_model("models/first_try.h5")
+    # correct output somehow
+    predictions = model.predict(X)
 
-    # filter size=(4,4); channels=16; filters=32; shape=?x16x16x64
-    convo_2 = convolutional_layer(convo_1_pooling, shape=[4, 4, 32, 64], name="Convolutional_2")
-    convo_2_pooling = max_pool_2by2(convo_2)  # shape=?x8x8x64
-    convo_2_flat = tf.reshape(convo_2_pooling, [-1, 8 * 8 * 64])
+    predictions = predictions.tolist()
+    max_value = 0
+    max_index = 0
+    i = 0
+    print(classes)
+    while len(predictions[0]) > i+1:
+        if max_value > predictions[0][i]:
+            i += 1
+            continue
+        else:
+            max_value = predictions[0][i]
+            max_index = i
+            i += 1
 
-    # filter size=(4,4); channels=32; filters=64; shape=?x8x8x32
-    # convo_3 = convolutional_layer(convo_2_pooling, shape=[4, 4, 32, 64], name="Convolutional_3")
-    # convo_3_pooling = max_pool_2by2(convo_3)  # shape=4x4x32
-    # convo_3_flat = tf.reshape(convo_3_pooling, [-1, 4 * 4 * 64])  # Flatten convolutional layer
-
-    full_layer_one = normal_full_layer(convo_2_flat, 1024, tf.nn.relu, name="Normal_Layer_1")
-    with tf.name_scope("dropout"):
-        hold_prob = tf.placeholder(tf.float32)
-        tf.summary.scalar("dropout_keep_probability", hold_prob)
-        full_one_dropout = tf.nn.dropout(full_layer_one, keep_prob=hold_prob)
-    y_pred = normal_full_layer(full_one_dropout, 47, act=tf.identity,
-                               name="Output_Layer")  # Layer with 47 neurons for one-hot encoding
-    with tf.name_scope("cross_entropy"):
-        with tf.name_scope("total"):
-            cross_entropy = tf.reduce_mean(
-                tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))  # Calculate cross-entropy
-    tf.summary.scalar("cross_entropy", cross_entropy)
-    with tf.name_scope("train"):
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.002)  # Optimizer
-        train = optimizer.minimize(cross_entropy)
-    with tf.name_scope("accuracy"):
-        with tf.name_scope("correct_predictions"):
-            correct_predictions = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))  # use argmax to get the index
-            # of the highest value in the prediction array and compare that with the true array to generate and array
-            #  of the form [True,False,True]
-        with tf.name_scope("accuracy"):
-            accuracy = tf.reduce_mean(tf.cast(correct_predictions, tf.float32))  # Calculate percentage of correct
-            # predictions
-    tf.summary.scalar("accuracy", accuracy)
-    saver = tf.train.Saver()
-
-    with tf.Session() as sess:
-        saver.restore(sess, checkpoint)  # Restore saved Variables
-        predictions = sess.run(y_pred, feed_dict={x: X, hold_prob: 1})
-    return classes[predictions.argmax()]
+    print(max_value)
+    print(max_index)
+    return classes[max_index]
 
 
 if __name__ == "__main__":
