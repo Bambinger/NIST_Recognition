@@ -7,11 +7,8 @@ def get_class(str):
 
 
 def main():
-    by_merge_dir = "C:/gitrepositories/Test/by_merge"
-    output_dir = "C:/gitrepositories/Test/data/"
-
-    #by_merge_dir = "C:\gitrepositories\NIST_Data/by_merge"
-    #output_dir = "C:\gitrepositories\NIST_Data/data/"
+    by_merge_dir = "C:/gitrepositories/NIST_Data/by_merge"
+    output_dir = "C:/gitrepositories/NIST_Data/data/"
     index = 0
     class_index = -1
     counter = 0

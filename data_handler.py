@@ -29,7 +29,7 @@ def get_label(name):
 def main():
     n_labels = 47
     n_images = 101784
-    path = "./data"  # Path to images
+    path = "C:/gitrepositories/NIST_Data/data"  # Path to images
     images = np.zeros(shape=(n_images, 32, 32, 1))  # Array with all images
     labels = np.zeros(shape=(n_images, n_labels))  # Array with all labels, one-hot encoded
 

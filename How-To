@@ -1,0 +1,14 @@
+# load data
+# rename_images:
+    # Pfade anpassen
+    # bei Bedarf algorithmus anpassen - je nach Dateninput
+    # go into main, import and call rename_images.main()
+# data_handler:
+    # Pfade anpassen
+    # adjust target shape (if wanted)
+    # go into main, import and call data_handler.main()
+
+# training_32x32:
+    # adjust epochs (search for variable)
+    # Train CNN based on tensorflow
+    #
