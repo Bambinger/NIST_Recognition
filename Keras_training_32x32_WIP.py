@@ -79,29 +79,34 @@ def main():
     # MODEL
 
     # filter size=(4,4); channels=1; filters=16; shape=?x32x32x32
-    convo_1 = Conv2D(filters = 16, kernel_size = [4,4], padding="same", activation = tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Convolutional_1")(x)
-    convo_1_pooling = MaxPool2D(pool_size = [2,2], strides = 2)(convo_1)  # shape=?x16x16x32
+    convo_1 = Conv2D(filters = 32, kernel_size = [4,4], padding="same", activation = tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Convolutional_1")(x)
+    #convo_1_pooling = MaxPool2D(pool_size = [2,2], strides = 2)(convo_1)  # shape=?x16x16x32
 
     # filter size=(4,4); channels=16; filters=32; shape=?x16x16x64
-    convo_2 = Conv2D(filters = 32, kernel_size = [4,4], padding="same", activation = tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Convolutional_2")(convo_1_pooling)
+    convo_2 = Conv2D(filters = 32, kernel_size = [4,4], padding="same", activation = tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Convolutional_2")(convo_1)
     convo_2_pooling = MaxPool2D(pool_size = [2,2], strides = 2)(convo_2)  # shape=?x8x8x64
-
+    #convo_2_flat = Flatten()(convo_2_pooling)  # Flatten convolutional layer
     
     # filter size=(4,4); channels=32; filters=64; shape=?x8x8x32
     convo_3 = Conv2D(filters = 64, kernel_size = [4,4], padding="same", activation = tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Convolutional_3")(convo_2_pooling)
-    convo_3_pooling = MaxPool2D(pool_size = [2,2], strides = 2)(convo_3)  # shape=4x4x32
-    convo_3_flat = Flatten()(convo_3_pooling)  # Flatten convolutional layer
+    #convo_3_pooling = MaxPool2D(pool_size = [2,2], strides = 2)(convo_3)  # shape=4x4x32
+    #convo_3_flat = Flatten()(convo_3_pooling)  # Flatten convolutional layer
 
-    full_layer_one = Dense(units = 512, activation= tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Normal_Layer_1")(convo_3_flat)
-    full_one_dropout = Dropout(rate = 0.3, name = "dropout1")(full_layer_one)
+    # filter size=(4,4); channels=32; filters=64; shape=?x8x8x32
+    convo_4 = Conv2D(filters = 64, kernel_size = [4,4], padding="same", activation = tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Convolutional_4")(convo_3)
+    convo_4_pooling = MaxPool2D(pool_size = [2,2], strides = 2)(convo_4)  # shape=4x4x32
+    convo_4_flat = Flatten()(convo_4_pooling)  # Flatten convolutional layer
+
+    full_layer_one = Dense(units = 512, activation= tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Normal_Layer_1")(convo_4_flat)
+    full_one_dropout = Dropout(rate = 0.4, name = "dropout1")(full_layer_one)
     full_layer_two = Dense(units = 256, activation= tf.nn.relu, kernel_initializer='random_normal', bias_initializer='zeros', name="Normal_Layer_2")(full_one_dropout)
-    full_two_dropout = Dropout(rate = 0.2, name = "dropout2")(full_layer_two)
+    full_two_dropout = Dropout(rate = 0.3, name = "dropout2")(full_layer_two)
     y_pred = Dense(47, activation = 'softmax', kernel_initializer='random_normal', bias_initializer='zeros', name="Output_Layer")(full_two_dropout)  # Layer with 47 neurons for one-hot encoding
 
     model = Model(inputs = x, outputs = y_pred)
 
     model.summary()
-    optimizer = Adam(learning_rate=0.005)
+    optimizer = Adam(learning_rate=0.0025)
     epoch_count = 15
     batch_size = 256
     model.compile(optimizer=optimizer, loss=tf.keras.losses.CategoricalCrossentropy(), metrics=['accuracy'])
@@ -118,7 +123,8 @@ def main():
 
     log("Finished training.")
     model_path = "models/first_try2.h5"
-    model.save("models/first_try2.h5")
+    model.save("models/first_try.h5")
+    model.save_weights('models/first_try_weights.h5')
     log("Model saved in " + model_path)
 
     def display_history(history):

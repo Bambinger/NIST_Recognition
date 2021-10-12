@@ -134,28 +134,14 @@ def predict(single_image):
         46: "t"
     }
 
-
+    tf.keras.backend.clear_session()
     model = keras.models.load_model("models/first_try.h5")
+    model.load_weights('models/first_try_weights5')
+    model.summary()
     # correct output somehow
     predictions = model.predict(X)
 
-    predictions = predictions.tolist()
-    max_value = 0
-    max_index = 0
-    i = 0
-    print(classes)
-    while len(predictions[0]) > i+1:
-        if max_value > predictions[0][i]:
-            i += 1
-            continue
-        else:
-            max_value = predictions[0][i]
-            max_index = i
-            i += 1
-
-    print(max_value)
-    print(max_index)
-    return classes[max_index]
+    return classes[predictions.argmax()]
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ import demo
 
 #data_handler.main()
 
-#Keras_training_32x32_WIP.main()
+Keras_training_32x32_WIP.main()
 
-demo.main()
+#demo.main()
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
